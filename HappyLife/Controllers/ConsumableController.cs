@@ -38,7 +38,7 @@ public class ConsumableController(AppDbContext dbContext) : ControllerBase
         var binaryData = BinaryData.FromStream(memoryStream);
         
         // Use prebuilt-receipt model for food store bills
-        var operation = await client.AnalyzeDocumentAsync(WaitUntil.Completed, "prebuilt-receipt", binaryData);
+        var operation = await client.AnalyzeDocumentAsync(WaitUntil.Completed, "prebuilt-invoice", binaryData);
         var result = operation.Value;
 
         var consumables = new List<Consumable>();
@@ -57,9 +57,8 @@ public class ConsumableController(AppDbContext dbContext) : ControllerBase
                             string name = "Unknown";
                             if (item.TryGetValue("Description", out var nameField) && nameField.Content != null)
                                 name = nameField.Content;
-                            
                             decimal price = 0;
-                            if (item.TryGetValue("TotalPrice", out var priceField) && priceField.ValueCurrency != null)
+                            if (item.TryGetValue("Amount", out var priceField) && priceField.ValueCurrency != null)
                                 price = (decimal)priceField.ValueCurrency.Amount;
                             
                             int quantity = 1;
