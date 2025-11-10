@@ -1,3 +1,7 @@
 <Solution>
   <Project Path="HappyLife/HappyLife.csproj" />
+  <Project Path="HappyLifeInterfaces/HappyLifeInterfaces.csproj" Id="56b7db8f-df7e-4804-a643-76a6f0948ac7" />
+  <Project Path="HappyLifeModels/HappyLifeModels.csproj" Id="0d096b82-94b3-4e19-b504-e366ac6d40da" />
+  <Project Path="HappyLifeRepository/HappyLifeRepository.csproj" Id="da950b9f-c703-4115-aa8c-8762279671bc" />
+  <Project Path="HappyLifeServices/HappyLifeServices.csproj" Id="fa2424f5-9272-4788-b152-6bb151599309" />
 </Solution>
