@@ -12,8 +12,20 @@ public class HappyLifeDbContext(DbContextOptions<HappyLifeDbContext> options) : 
     {
         base.OnModelCreating(modelBuilder);
 
-        // Configurer un index sur NormalizedName pour améliorer les performances de recherche
-        modelBuilder.Entity<Consumable>()
-            .HasIndex(c => c.NormalizedName);
+        // Configuration pour Cosmos DB
+        modelBuilder.Entity<Consumable>(entity =>
+        {
+            // Définir le conteneur (collection) dans Cosmos DB
+            entity.ToContainer("Consumables");
+            
+            // Définir la clé de partition
+            entity.HasPartitionKey(c => c.NormalizedName);
+            
+            // Pas besoin d'index explicite avec Cosmos DB - il indexe automatiquement toutes les propriétés
+            // mais on peut définir la propriété qui sera utilisée comme "id" dans Cosmos
+            entity.Property(c => c.Id)
+                .ToJsonProperty("id")
+                .ValueGeneratedOnAdd();
+        });
     }
 }

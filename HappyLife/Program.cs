@@ -14,9 +14,21 @@ builder.Services.AddControllers();
 builder.Services.Configure<AzureDocumentIntelligenceOptions>(
     builder.Configuration.GetSection(AzureDocumentIntelligenceOptions.SectionName));
 
-// Configure Database
-builder.Services.AddDbContext<HappyLifeDbContext>(options => 
-    options.UseInMemoryDatabase(databaseName: "InMemoryHappyLifeDb"));
+// Configure Cosmos DB
+var cosmosDbConfig = builder.Configuration.GetSection(CosmosDbOptions.SectionName).Get<CosmosDbOptions>();
+if (cosmosDbConfig == null)
+{
+    throw new InvalidOperationException("CosmosDb configuration is missing");
+}
+
+builder.Services.AddDbContext<HappyLifeDbContext>(options =>
+{
+    options.UseCosmos(
+        cosmosDbConfig.AccountEndpoint,
+        cosmosDbConfig.AccountKey,
+        cosmosDbConfig.DatabaseName);
+});
+
 builder.Services.AddScoped<IHappyLifeDbContext>(provider => 
     provider.GetRequiredService<HappyLifeDbContext>());
 
@@ -29,6 +41,13 @@ builder.Services.AddScoped<IConsumableRepository, ConsumableRepository>();
 builder.Services.AddScoped<IInvoiceToConsumableService, InvoiceToConsumableService>();
 
 var app = builder.Build();
+
+// Ensure Cosmos DB database is created
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<HappyLifeDbContext>();
+    await dbContext.Database.EnsureCreatedAsync();
+}
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
