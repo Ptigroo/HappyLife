@@ -33,12 +33,23 @@ Cette solution suit une architecture en couches avec séparation des responsabili
 - Implémente les interfaces de `IServiceInterfaces`
 - Orchestre les appels aux repositories
 - Intègre les services externes (Azure Document Intelligence)
+- **Normalisation des noms** : `ConsumableNameNormalizer` pour éviter les doublons
 
 ## Flux de données
 
 ```
 Controller ? Service (Interface) ? Repository (Interface) ? DbContext ? Database
 ```
+
+## Fonctionnalités clés
+
+### ?? Normalisation et fusion des consommables
+Le système détecte automatiquement les consommables similaires et les fusionne :
+- **"Salmon 400gr"** et **"Salmon from Delhaize"** ? Même consommable
+- Suppression automatique des quantités, marques et mots inutiles
+- Mise à jour intelligente des quantités lors de nouveaux scans
+
+?? **Voir** : [CONSUMABLE_NORMALIZATION.md](CONSUMABLE_NORMALIZATION.md) pour plus de détails
 
 ## Principes appliqués
 
@@ -61,6 +72,10 @@ Controller ? Service (Interface) ? Repository (Interface) ? DbContext ? Database
 - Les dépendances pointent vers l'intérieur
 - Les couches externes dépendent des couches internes
 
+### ? Domain-Driven Design (DDD)
+- Normalisation des noms comme logique de domaine
+- `NormalizedName` comme propriété calculée
+
 ## Configuration
 
 ### Azure Document Intelligence
@@ -78,6 +93,22 @@ Configurez vos credentials Azure dans `appsettings.json` ou `appsettings.Develop
 
 ?? **Important** : Ne commitez jamais les clés API en production. Utilisez Azure Key Vault ou les variables d'environnement.
 
+## Endpoints API
+
+### Upload d'une facture
+```http
+POST /Consumable/upload-bill
+Content-Type: multipart/form-data
+```
+Extrait les articles avec prix et quantités, fusionne avec les existants.
+
+### Initialisation depuis anciennes factures
+```http
+POST /Consumable/initialize-from-invoice
+Content-Type: multipart/form-data
+```
+Crée le catalogue de consommables sans quantités ni prix.
+
 ## Points d'amélioration possibles
 
 1. **Unit of Work Pattern** : Pour gérer les transactions complexes
@@ -86,3 +117,5 @@ Configurez vos credentials Azure dans `appsettings.json` ou `appsettings.Develop
 4. **Logging** : Intégrer Serilog pour un logging structuré
 5. **Exception Handling** : Middleware global pour gérer les erreurs
 6. **Authentication/Authorization** : Ajouter JWT ou Azure AD
+7. **Fuzzy Matching** : Améliorer la détection de similarité avec Levenshtein
+8. **Machine Learning** : Classification automatique des produits
