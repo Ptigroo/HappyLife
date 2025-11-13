@@ -1,5 +1,6 @@
 ﻿namespace HappyLifeInterfaces.RepositoryInterfaces;
+
 public interface IHappyLifeDbContext
 {
-    Task SaveHappyLifeDb();
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

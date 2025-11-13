@@ -1,10 +1,9 @@
-using Azure;
-using Azure.AI.DocumentIntelligence;
 using HappyLife.Controllers.Dtos;
 using HappyLifeInterfaces.ServiceInterfaces;
-using HappyLifeServices;
 using Microsoft.AspNetCore.Mvc;
+
 namespace HappyLife.Controllers;
+
 [ApiController]
 [Route("[controller]")]
 public class ConsumableController(IInvoiceToConsumableService invoiceToConsumableService) : ControllerBase

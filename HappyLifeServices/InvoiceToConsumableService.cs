@@ -4,17 +4,20 @@ using HappyLifeInterfaces.RepositoryInterfaces;
 using HappyLifeInterfaces.ServiceInterfaces;
 using HappyLifeModels;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace HappyLifeServices;
-public class InvoiceToConsumableService(IHappyLifeDbContext context, IConsumableRepository consumableRepository) : IInvoiceToConsumableService
+
+public class InvoiceToConsumableService(
+    IConsumableRepository consumableRepository,
+    IOptions<AzureDocumentIntelligenceOptions> options) : IInvoiceToConsumableService
 {
+    private readonly AzureDocumentIntelligenceOptions _options = options.Value;
+
     public async Task<List<Consumable>> ExtractConsumablesFromAzureAsync(IFormFile billImage)
     {
-        // Replace with your Azure endpoint and key
-        string endpoint = "https://invoicetoconsumable.cognitiveservices.azure.com/";
-        string apiKey = "5GbUl0ETJdY008l0etsEDH6mNDubvDAXUsNpudoNppMwDBRZ3IJZJQQJ99BKAC5RqLJXJ3w3AAALACOG9VZG";
-        var credential = new AzureKeyCredential(apiKey);
-        var client = new DocumentIntelligenceClient(new Uri(endpoint), credential);
+        var credential = new AzureKeyCredential(_options.ApiKey);
+        var client = new DocumentIntelligenceClient(new Uri(_options.Endpoint), credential);
 
         using var memoryStream = new MemoryStream();
         await billImage.CopyToAsync(memoryStream);
@@ -53,11 +56,12 @@ public class InvoiceToConsumableService(IHappyLifeDbContext context, IConsumable
                 }
             }
         }
+        
         foreach (var c in consumables)
         {
             await consumableRepository.AddConsumableAsync(c);
         }
-        await context.SaveHappyLifeDb();
+        
         return consumables;
     }
 }
