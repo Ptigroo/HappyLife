@@ -14,19 +14,16 @@ builder.Services.AddControllers();
 builder.Services.Configure<AzureDocumentIntelligenceOptions>(
     builder.Configuration.GetSection(AzureDocumentIntelligenceOptions.SectionName));
 
-// Configure Cosmos DB
-var cosmosDbConfig = builder.Configuration.GetSection(CosmosDbOptions.SectionName).Get<CosmosDbOptions>();
-if (cosmosDbConfig == null)
+// Configure MySQL
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
 {
-    throw new InvalidOperationException("CosmosDb configuration is missing");
+    throw new InvalidOperationException("MySQL connection string is missing");
 }
 
 builder.Services.AddDbContext<HappyLifeDbContext>(options =>
 {
-    options.UseCosmos(
-        cosmosDbConfig.AccountEndpoint,
-        cosmosDbConfig.AccountKey,
-        cosmosDbConfig.DatabaseName);
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
 
 builder.Services.AddScoped<IHappyLifeDbContext>(provider => 
@@ -42,7 +39,7 @@ builder.Services.AddScoped<IInvoiceToConsumableService, InvoiceToConsumableServi
 
 var app = builder.Build();
 
-// Ensure Cosmos DB database is created
+// Ensure MySQL database is created
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<HappyLifeDbContext>();

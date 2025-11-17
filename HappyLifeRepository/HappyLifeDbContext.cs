@@ -12,20 +12,30 @@ public class HappyLifeDbContext(DbContextOptions<HappyLifeDbContext> options) : 
     {
         base.OnModelCreating(modelBuilder);
 
-        // Configuration pour Cosmos DB
+        // Configuration for SQL Server
         modelBuilder.Entity<Consumable>(entity =>
         {
-            // Définir le conteneur (collection) dans Cosmos DB
-            entity.ToContainer("Consumables");
+            entity.HasKey(c => c.Id);
             
-            // Définir la clé de partition
-            entity.HasPartitionKey(c => c.NormalizedName);
-            
-            // Pas besoin d'index explicite avec Cosmos DB - il indexe automatiquement toutes les propriétés
-            // mais on peut définir la propriété qui sera utilisée comme "id" dans Cosmos
             entity.Property(c => c.Id)
-                .ToJsonProperty("id")
                 .ValueGeneratedOnAdd();
+            
+            entity.Property(c => c.Name)
+                .IsRequired()
+                .HasMaxLength(200);
+            
+            entity.Property(c => c.NormalizedName)
+                .IsRequired()
+                .HasMaxLength(200);
+            
+            entity.HasIndex(c => c.NormalizedName)
+                .IsUnique();
+            
+            entity.Property(c => c.Price)
+                .HasColumnType("decimal(18,2)");
+            
+            entity.Property(c => c.Quantity)
+                .IsRequired();
         });
     }
 }
