@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   # MySQL Database
   mysql:
-    image: mysql:8.0
+    image: mysql:8.0.44-debian
     container_name: happylife-mysql
     environment:
       MYSQL_ROOT_PASSWORD: admin
