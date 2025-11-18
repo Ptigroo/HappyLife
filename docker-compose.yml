@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: happylife-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: HappyLifeDb
+      MYSQL_USER: happylife
+      MYSQL_PASSWORD: happylife
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - happylife-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # .NET Application
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: happylife-webapp
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=mysql;Database=HappyLifeDb;User=root;Password=admin;
+      - AzureDocumentIntelligence__Endpoint=${AZURE_DOC_INTEL_ENDPOINT:-https://invoicetoconsumable.cognitiveservices.azure.com/}
+      - AzureDocumentIntelligence__ApiKey=${AZURE_DOC_INTEL_API_KEY}
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - happylife-network
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+    driver: local
+
+networks:
+  happylife-network:
+    driver: bridge

@@ -1,0 +1,7 @@
+# Add these lines to your .gitignore file
+
+# Docker
+.env
+docker-compose.override.yml
+**/obj/Docker/
+**/obj/Container/
