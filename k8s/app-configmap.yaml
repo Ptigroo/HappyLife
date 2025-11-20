@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: happylife
+data:
+  ASPNETCORE_ENVIRONMENT: "Development"
+  ASPNETCORE_URLS: "http://+:8080"
+  AzureDocumentIntelligence__Endpoint: "https://invoicetoconsumable.cognitiveservices.azure.com/"
+  ConnectionStrings__DefaultConnection: "Server=mysql-service;Database=HappyLifeDb;User=root;Password=admin;"

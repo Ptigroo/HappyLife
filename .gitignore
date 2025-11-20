@@ -361,3 +361,22 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Docker and Docker Compose
+.env
+docker-compose.override.yml
+.dockerignore
+
+# Kubernetes
+# Keep k8s/*.yaml files but ignore any with .local suffix
+k8s/*.local.yaml
+k8s/secrets.yaml
+# Uncomment below if you want to ignore all secrets (recommended for public repos)
+# k8s/*-secret.yaml
+
+# Database backups
+*.sql
+backup-*.sql
+
+# Minikube
+.minikube/
